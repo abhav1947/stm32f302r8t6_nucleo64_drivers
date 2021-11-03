@@ -2,7 +2,7 @@
  * stm32f302r8x_gpio_driver.h
  *
  *  Created on: 07-Aug-2021
- *      Author: abhav
+ *      Author: Abhav S Velidi
  */
 
 #ifndef INC_STM32F302R8X_GPIO_DRIVER_H_
