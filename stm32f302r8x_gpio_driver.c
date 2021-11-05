@@ -105,9 +105,27 @@ void GPIO_Init(GPIO_Handel_t *pGPIOHandle)
 		pGPIOHandle -> pGPIOX -> MODER &= ~(0x3 << (2*pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber) );
 		pGPIOHandle -> pGPIOX -> MODER |= temp;
 		temp = 0;
-	}else
+	}
+	//6. IRQ handeling
+	else if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_FT)
 	{
+		//1. configure FTSR
+		EXTI -> FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		//clear corresponding bit
+		EXTI -> FTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 
+	}else if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RT)
+	{
+		//2. configure RTSR
+		EXTI -> RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		//clear corresponding bit
+		EXTI -> RTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+	}else if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RFT)
+	{
+		//2. configure both RTSR and FTSR
+		EXTI -> RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		//clear corresponding bit
+		EXTI -> FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 	}
 
 	temp = 0;
@@ -138,28 +156,6 @@ void GPIO_Init(GPIO_Handel_t *pGPIOHandle)
 		temp2 = pGPIOHandle -> GPIO_PinConfig.GPIO_PinNumber % 8;
 		pGPIOHandle->pGPIOX->AFR[temp1] &= ~(0xF << (4*temp2));
 		pGPIOHandle->pGPIOX->AFR[temp1] |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (4*temp2));
-	}
-
-	//6. IRQ handeling
-	if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_FT)
-	{
-		//1. configure FTSR
-		EXTI -> FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-		//clear corresponding bit
-		EXTI -> FTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-
-	}else if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RT)
-	{
-		//2. configure RTSR
-		EXTI -> RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-		//clear corresponding bit
-		EXTI -> RTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-	}else if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RFT)
-	{
-		//2. configure both RTSR and FTSR
-		EXTI -> RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-		//clear corresponding bit
-		EXTI -> FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 	}
 
 	// Configure the GPIO port selection in SYSCFG_EXTICR
@@ -385,37 +381,3 @@ void GPIO_IRQHandling(uint8_t PinNumber)
 				EXTI->PR |= (1 << PinNumber);
 			}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
